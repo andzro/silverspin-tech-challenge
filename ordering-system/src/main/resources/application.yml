@@ -1,0 +1,49 @@
+spring:
+  application:
+    name: ordering-system
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/mydatabase
+    username: myuser
+    password: mypassword
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+
+  kafka:
+    bootstrap-servers: localhost:9092  # ✅ Kafka broker address
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    consumer:
+      group-id: order-group
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    listener:
+      missing-topics-fatal: false
+    consumer-properties:
+      spring.json.trusted.packages: "*"
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+  override-with-generic-response: false
+  cache:
+    disabled: true
+  paths-to-match: /api/**
+  use-fqn: true
+  writer-with-order-by-keys: true
+  swagger-ui-config-url: /v3/api-docs/swagger-config

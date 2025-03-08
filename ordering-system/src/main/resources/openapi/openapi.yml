@@ -1,0 +1,117 @@
+openapi: 3.0.1
+info:
+  title: Order API
+  description: API for managing orders with pagination and filters.
+  version: 1.1.0
+
+servers:
+  - url: http://localhost:8080
+    description: Local Development Server
+
+paths:
+  /api/orders:
+    get:
+      summary: Get paginated list of orders with optional filters
+      operationId: getOrders
+      tags:
+        - Orders
+      parameters:
+        - name: page
+          in: query
+          description: Page number (starts at 0)
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: Number of records per page
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: status
+          in: query
+          description: Filter by order status
+          required: false
+          schema:
+            type: string
+        - name: customerName
+          in: query
+          description: Filter by customer name
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated list of orders
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedOrderResponse"
+
+    post:
+      summary: Create a new order
+      operationId: createOrder
+      tags:
+        - Orders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderRequest"
+      responses:
+        "201":
+          description: Order successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+
+components:
+  schemas:
+    OrderRequest:
+      type: object
+      properties:
+        customerName:
+          type: string
+          example: "John Doe"
+      required:
+        - customerName
+
+    OrderResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        customerName:
+          type: string
+          example: "John Doe"
+        status:
+          type: string
+          example: "Processing"
+        trackingNumber:
+          type: string
+          example: "ABC123456"
+
+    PaginatedOrderResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderResponse"
+        totalPages:
+          type: integer
+          example: 5
+        totalElements:
+          type: integer
+          example: 50
+        size:
+          type: integer
+          example: 10
+        number:
+          type: integer
+          example: 0

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.8.xsd">
+
+    <changeSet id="2" author="yourname">
+        <createTable tableName="shipments">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            
+            <column name="order_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="tracking_number" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            
+            <column name="status" type="varchar(50)" defaultValue="pending"/>
+            <column name="created_at" type="timestamp" defaultValueComputed="CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <addUniqueConstraint columnNames="tracking_number"
+                             tableName="shipments"
+                             constraintName="uq_shipments_tracking_number"/>
+                             
+        <addUniqueConstraint columnNames="order_id"
+                             tableName="shipments"
+                             constraintName="uq_shipments_order_id"/>
+
+        <addForeignKeyConstraint constraintName="fk_shipments_orders"
+                                 baseTableName="shipments" baseColumnNames="order_id"
+                                 referencedTableName="orders" referencedColumnNames="id"
+                                 onDelete="CASCADE"/>
+    </changeSet>
+
+</databaseChangeLog>
