@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.generated.api.OrdersApi;
 import com.example.demo.generated.model.OrderRequest;
 import com.example.demo.generated.model.OrderResponse;
+import com.example.demo.generated.model.OrderUpdateRequest;
 import com.example.demo.generated.model.PaginatedOrderResponse;
 import com.example.demo.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -28,5 +29,16 @@ public class OrderController implements OrdersApi {
     public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest orderRequest) {
         OrderResponse response = orderService.createOrder(orderRequest);
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/api/orders/{id}")
+    public ResponseEntity<OrderResponse> updateOrder(@PathVariable Integer id, @RequestBody OrderUpdateRequest orderUpdateRequest) {
+        return ResponseEntity.ok(orderService.updateOrder(id, orderUpdateRequest));
+    }
+
+    @DeleteMapping("/api/orders/{id}")
+    public ResponseEntity<Void> deleteOrder(@PathVariable Integer id) {
+        orderService.deleteOrder(id);
+        return ResponseEntity.noContent().build();
     }
 }

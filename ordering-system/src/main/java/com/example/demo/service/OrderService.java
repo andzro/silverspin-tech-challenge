@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.generated.model.OrderRequest;
 import com.example.demo.generated.model.OrderResponse;
 import com.example.demo.generated.model.PaginatedOrderResponse;
+import com.example.demo.generated.model.OrderUpdateRequest;
 import com.example.demo.entity.Order;
 import com.example.demo.repository.OrderRepository;
 import com.example.demo.producer.OrderProducer;
@@ -76,6 +77,38 @@ public class OrderService {
         response.setNumber(orderPage.getNumber());
 
         return response;
+    }
+
+    public OrderResponse updateOrder(Integer id, OrderUpdateRequest orderUpdateRequest) {
+        Order order = orderRepository.findById((long) id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        // Prevent status change if order is already processed
+        if (!"PENDING".equals(order.getStatus()) && !order.getStatus().equals(orderUpdateRequest.getStatus())) {
+            throw new RuntimeException("Cannot update order status if it has already been processed");
+        }
+
+        order.setCustomerName(orderUpdateRequest.getCustomerName());
+
+        if (orderUpdateRequest.getStatus() != null) {
+            order.setStatus(orderUpdateRequest.getStatus());
+        }
+
+        Order updatedOrder = orderRepository.save(order);
+        logger.info("Order updated: {}", updatedOrder);
+        return mapToResponse(updatedOrder);
+    }
+
+    public void deleteOrder(Integer id) {
+        Order order = orderRepository.findById((long) id)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        if (!"PENDING".equals(order.getStatus())) {
+            throw new RuntimeException("Cannot delete order that is already processed");
+        }
+
+        orderRepository.delete(order);
+        logger.info("Order deleted: {}", id);
     }
 
     private String generateTrackingNumber() {

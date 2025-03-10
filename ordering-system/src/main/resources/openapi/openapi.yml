@@ -68,6 +68,51 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/OrderResponse"
+  /api/orders/{id}:
+    put:
+      summary: Update an existing order
+      operationId: updateOrder
+      tags:
+        - Orders
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderUpdateRequest"
+      responses:
+        "200":
+          description: Order successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderResponse"
+        "400":
+          description: Cannot update order if already processed
+
+    delete:
+      summary: Delete an order
+      operationId: deleteOrder
+      tags:
+        - Orders
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Order successfully deleted
+        "400":
+          description: Cannot delete order if already processed
+
 
 components:
   schemas:
@@ -115,3 +160,12 @@ components:
         number:
           type: integer
           example: 0
+    OrderUpdateRequest:
+      type: object
+      properties:
+        customerName:
+          type: string
+          example: "John Doe"
+        status:
+          type: string
+          example: "Processing"

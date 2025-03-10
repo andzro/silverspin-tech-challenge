@@ -1,0 +1,212 @@
+openapi: 3.0.1
+info:
+  title: Shipping API
+  description: API for managing shipments and tracking statuses.
+  version: 1.0.1
+
+servers:
+  - url: http://localhost:8081
+    description: Local Development Server
+
+paths:
+  /api/shipments:
+    get:
+      summary: Get paginated list of shipments with optional filters
+      operationId: getShipments
+      tags:
+        - Shipments
+      parameters:
+        - name: page
+          in: query
+          description: Page number (starts at 0)
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: Number of records per page
+          required: false
+          schema:
+            type: integer
+            default: 10
+        - name: status
+          in: query
+          description: Filter by shipment status
+          required: false
+          schema:
+            type: string
+        - name: trackingNumber
+          in: query
+          description: Filter by tracking number
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Paginated list of shipments
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaginatedShipmentResponse"
+
+    post:
+      summary: Create a new shipment (process an order)
+      operationId: createShipment
+      tags:
+        - Shipments
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShipmentRequest"
+      responses:
+        "201":
+          description: Shipment successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShipmentResponse"
+        "400":
+          description: Cannot create shipment if order does not exist
+
+  /api/shipments/{id}:
+    get:
+      summary: Get shipment details by ID
+      operationId: getShipmentById
+      tags:
+        - Shipments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Shipment details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShipmentResponse"
+        "404":
+          description: Shipment not found
+
+    put:
+      summary: Update shipment status
+      operationId: updateShipmentStatus
+      tags:
+        - Shipments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShipmentUpdateRequest"
+      responses:
+        "200":
+          description: Shipment status updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShipmentResponse"
+        "400":
+          description: Cannot update status if already delivered
+
+    delete:
+      summary: Cancel a shipment
+      operationId: cancelShipment
+      tags:
+        - Shipments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Shipment successfully canceled
+        "400":
+          description: Cannot cancel shipment if already shipped
+
+components:
+  schemas:
+    ShipmentRequest:
+      type: object
+      properties:
+        orderId:
+          type: integer
+          example: 1
+      required:
+        - orderId
+
+    ShipmentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 10
+        orderId:
+          type: integer
+          example: 1
+        trackingNumber:
+          type: string
+          example: "ABC123456"
+        status:
+          type: string
+          example: "Shipped"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2025-03-09T12:34:56"
+
+    ShipmentUpdateRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "Delivered"
+
+    PaginatedShipmentResponse:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/ShipmentResponse"
+        totalPages:
+          type: integer
+          example: 5
+        totalElements:
+          type: integer
+          example: 50
+        size:
+          type: integer
+          example: 10
+        number:
+          type: integer
+          example: 0
+
+    OrderResponse: 
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        customerName:
+          type: string
+          example: "John Doe"
+        status:
+          type: string
+          example: "Processing"
+        trackingNumber:
+          type: string
+          example: "ABC123456"

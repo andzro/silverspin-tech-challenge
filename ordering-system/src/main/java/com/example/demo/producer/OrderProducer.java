@@ -16,6 +16,6 @@ public class OrderProducer {
 
     public void sendOrderEvent(String orderEvent) {
         kafkaTemplate.send(TOPIC, orderEvent);
-        logger.info("✅ Order event published: {}", orderEvent);
+        logger.info("Order event published: {}", orderEvent);
     }
 }

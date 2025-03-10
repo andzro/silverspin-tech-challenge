@@ -1,0 +1,79 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.3'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'org.openapi.generator' version '7.2.0'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir("$buildDir/generated/")
+        }
+    }
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.kafka:spring-kafka'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-common:2.1.0'
+	implementation 'io.swagger.parser.v3:swagger-parser:2.1.16'
+    implementation 'org.liquibase:liquibase-core:4.23.0'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.postgresql:postgresql'
+	implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+	implementation 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+	implementation 'javax.servlet:javax.servlet-api:4.0.1'
+	implementation 'org.apache.logging.log4j:log4j-api:2.20.0'
+    implementation 'org.apache.logging.log4j:log4j-core:2.20.0'
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+
+	runtimeOnly 'org.postgresql:postgresql'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+	testImplementation 'com.h2database:h2'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
+
+// OpenAPI Generator Task
+openApiGenerate {
+    generatorName.set("spring")
+    inputSpec.set("$rootDir/src/main/resources/openapi/openapi.yml")
+    outputDir.set("$buildDir/generated")
+	apiPackage.set("com.example.demo.generated.api")
+    modelPackage.set("com.example.demo.generated.model") 
+
+    configOptions.put("interfaceOnly", "true")
+    configOptions.put("dateLibrary", "java8")
+    configOptions.put("useTags", "true")
+	configOptions.put("useJakartaEe", "true")
+}
+
+tasks.named("compileJava") {
+    dependsOn("openApiGenerate")
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
